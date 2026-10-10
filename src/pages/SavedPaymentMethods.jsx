@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
@@ -33,15 +33,8 @@ export default function SavedPaymentMethods() {
     const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '' });
     const [upiDetails, setUpiDetails] = useState({ upi_id: '' });
 
-    useEffect(() => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-        fetchMethods();
-    }, [user, navigate]);
-
-    const fetchMethods = async () => {
+    const fetchMethods = useCallback(async () => {
+        if (!user) return;
         setIsLoading(true);
         try {
             const { data, error } = await supabase.from('profiles').select('saved_payments').eq('id', user.id).single();
@@ -54,7 +47,15 @@ export default function SavedPaymentMethods() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        fetchMethods();
+    }, [user, navigate, fetchMethods]);
 
     const handleSaveMethod = async (e) => {
         e.preventDefault();

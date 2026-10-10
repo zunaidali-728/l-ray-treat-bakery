@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import useAuthStore from './useAuthStore';
 
-const useProfileStore = create((set, get) => ({
+const useProfileStore = create((set) => ({
     profile: null,
     addresses: [],
     isLoading: false,
@@ -79,7 +79,7 @@ const useProfileStore = create((set, get) => ({
             if (error) throw error;
 
             set((state) => ({ addresses: [data, ...state.addresses] }));
-            return true;
+            return data;
         } catch (err) {
             console.error(err);
             return false;

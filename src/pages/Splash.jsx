@@ -12,7 +12,7 @@ export default function Splash() {
   }, [navigate]);
 
   return (
-    <div className="deep-bg font-body overflow-hidden h-screen w-screen flex flex-col items-center justify-center relative">
+    <div className="deep-bg font-body overflow-hidden h-screen w-full flex flex-col items-center justify-center relative">
       {/* Cinematic Background Container */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Parallax Background Image */}

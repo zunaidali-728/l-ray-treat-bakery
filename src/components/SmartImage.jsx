@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 export default function SmartImage({ src, alt, className = "", fallbackSrc = "/fallback-food.png" }) {
-    const [isLoading, setIsLoading] = useState(true);
+    const [prevSrc, setPrevSrc] = useState(src);
+    const [isLoading, setIsLoading] = useState(!!src);
     const [hasError, setHasError] = useState(false);
 
-    useEffect(() => {
+    if (prevSrc !== src) {
+        setPrevSrc(src);
         setIsLoading(!!src);
         setHasError(false);
-    }, [src]);
+    }
 
     const handleError = () => {
         // Prevent infinite loops if fallbackSrc also fails

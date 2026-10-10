@@ -34,7 +34,7 @@ export default function Menu() {
   const beverages = products.filter(p => p.category === 'beverage');
 
   // Generic Product Card Component to keep code DRY
-  const ProductCard = ({ product, color }) => (
+  const ProductCard = ({ product }) => (
     <div className="clay-card rounded-xl p-6 relative group overflow-visible min-h-[220px] flex flex-col">
       <div className="absolute -top-12 -right-4 w-44 h-44 drop-shadow-2xl transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 z-10">
         <SmartImage 

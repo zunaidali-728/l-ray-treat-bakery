@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import useAuthStore from './useAuthStore';
 
-const useOrderStore = create((set, get) => ({
+const useOrderStore = create((set) => ({
     activeOrder: null,
     isLoading: false,
 

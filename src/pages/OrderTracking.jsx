@@ -5,6 +5,25 @@ import { supabase } from '../lib/supabase';
 import useProfileStore from '../store/useProfileStore';
 import ReviewCard from '../components/ReviewCard';
 
+// Render Logic for Steps
+const StepIndicator = ({ title, timeText, descText, state }) => {
+    return (
+        <div className={`relative flex gap-6 ${state === 'pending' ? 'opacity-40' : ''} transition-opacity duration-500`}>
+            <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${state === 'completed' ? 'bg-primary' : state === 'active' ? 'bg-primary-container ring-4 ring-primary/20' : 'bg-surface-container-highest'}`}>
+                {state === 'completed' && <span className="material-symbols-outlined text-[14px] text-white" style={{fontVariationSettings: "'wght' 700"}}>check</span>}
+                {state === 'active' && <div className="w-2.5 h-2.5 rounded-full bg-on-primary-container animate-pulse"></div>}
+            </div>
+            <div>
+                <h3 className={`font-headline font-bold text-lg transition-all duration-500 ${state === 'completed' ? 'text-on-surface opacity-60 line-through decoration-primary/30' : state === 'active' ? 'text-on-surface' : 'text-on-surface'}`}>
+                    {title}
+                </h3>
+                {state === 'active' && descText && <p className="font-body text-sm text-on-surface-variant mt-1 animate-in fade-in slide-in-from-top-1">{descText}</p>}
+                <p className={`font-label text-[10px] uppercase tracking-wider mt-1 ${state === 'active' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>{timeText}</p>
+            </div>
+        </div>
+    );
+};
+
 const OrderTracking = () => {
     const { orderId } = useParams();
     const location = useLocation();
@@ -15,7 +34,6 @@ const OrderTracking = () => {
     
     const [order, setOrder] = useState(initialOrderInfo);
     const [status, setStatus] = useState(initialOrderInfo?.status || 'pending');
-    const [destination, setDestination] = useState(null);
     const [isLoading, setIsLoading] = useState(!initialOrderInfo);
 
     const { addresses, fetchProfile } = useProfileStore();
@@ -25,14 +43,9 @@ const OrderTracking = () => {
         if (addresses.length === 0) fetchProfile();
     }, [fetchProfile, addresses.length]);
 
-    // Link target Address
-    useEffect(() => {
-        const targetAddressId = order?.addressId;
-        if (targetAddressId && addresses.length > 0) {
-            const found = addresses.find(a => a.id === targetAddressId);
-            if (found) setDestination(found);
-        }
-    }, [order, addresses]);
+    // Derive target destination dynamically from store
+    const targetAddressId = order?.addressId || order?.delivery_address_id;
+    const destination = addresses.find(a => a.id === targetAddressId) || null;
 
     // Boot Database Subscription
     useEffect(() => {
@@ -57,10 +70,10 @@ const OrderTracking = () => {
         }
 
         const fetchLatestDetails = async () => {
-            const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
+            const { data } = await supabase.from('orders').select('*').eq('id', orderId).single();
             if (data) {
                 // Ensure we don't nuke local state items if DB items structure is flat
-                setOrder(prev => ({...prev, ...data, items: data.items.length > 0 ? data.items : prev?.items }));
+                setOrder(prev => ({...prev, ...data, items: data.items && data.items.length > 0 ? data.items : prev?.items }));
                 setStatus(data.status || 'pending');
             }
             setIsLoading(false);
@@ -90,7 +103,7 @@ const OrderTracking = () => {
             clearInterval(pollInterval);
             supabase.removeChannel(channel);
         };
-    }, [orderId]);
+    }, [orderId, navigate]);
 
     // View Mapping logic
     const items = order?.items || [];
@@ -103,25 +116,6 @@ const OrderTracking = () => {
         if (currentStatusIndex > stepIndex) return 'completed';
         if (currentStatusIndex === stepIndex) return 'active';
         return 'pending';
-    };
-
-    // Render Logic for Steps
-    const StepIndicator = ({ title, timeText, descText, state }) => {
-        return (
-            <div className={`relative flex gap-6 ${state === 'pending' ? 'opacity-40' : ''} transition-opacity duration-500`}>
-                <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${state === 'completed' ? 'bg-primary' : state === 'active' ? 'bg-primary-container ring-4 ring-primary/20' : 'bg-surface-container-highest'}`}>
-                    {state === 'completed' && <span className="material-symbols-outlined text-[14px] text-white" style={{fontVariationSettings: "'wght' 700"}}>check</span>}
-                    {state === 'active' && <div className="w-2.5 h-2.5 rounded-full bg-on-primary-container animate-pulse"></div>}
-                </div>
-                <div>
-                    <h3 className={`font-headline font-bold text-lg transition-all duration-500 ${state === 'completed' ? 'text-on-surface opacity-60 line-through decoration-primary/30' : state === 'active' ? 'text-on-surface' : 'text-on-surface'}`}>
-                        {title}
-                    </h3>
-                    {state === 'active' && descText && <p className="font-body text-sm text-on-surface-variant mt-1 animate-in fade-in slide-in-from-top-1">{descText}</p>}
-                    <p className={`font-label text-[10px] uppercase tracking-wider mt-1 ${state === 'active' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>{timeText}</p>
-                </div>
-            </div>
-        );
     };
 
     const shortId = orderId ? orderId.substring(0,8).toUpperCase() : 'UNKNOWN';

@@ -1,4 +1,4 @@
-import { useEffect, Suspense, lazy } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import useAuthStore from './store/useAuthStore';
 import useMenuStore from './store/useMenuStore';

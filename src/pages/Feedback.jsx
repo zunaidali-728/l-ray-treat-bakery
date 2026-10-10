@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import useAuthStore from '../store/useAuthStore';
 
 const Feedback = () => {
-    const { user, isAuthenticated } = useAuthStore();
+    const { isAuthenticated } = useAuthStore();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({

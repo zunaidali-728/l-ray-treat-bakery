@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCartStore from '../store/useCartStore';
 import useProfileStore from '../store/useProfileStore';
@@ -34,7 +34,6 @@ export default function Checkout() {
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showError, setShowError] = useState(false);
-    const prevAddressCount = useRef(0);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -57,17 +56,6 @@ export default function Checkout() {
         fetchProfile();
     }, [user, navigate, fetchProfile]);
 
-    // Auto-select newly added address
-    useEffect(() => {
-        if (addresses.length > prevAddressCount.current && addresses.length > 0) {
-            // New address was added, it's usually at the end of the array
-            const newAddress = addresses[addresses.length - 1];
-            setSelectedAddressId(newAddress.id);
-            setShowError(false);
-        }
-        prevAddressCount.current = addresses.length;
-    }, [addresses]);
-
     const cartTotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
     const deliveryFee = cartTotal >= 499 || cartTotal === 0 ? 0 : 50;
     const finalAmount = cartTotal + deliveryFee;
@@ -86,10 +74,14 @@ export default function Checkout() {
         const fullAddressLine = `${formData.recipientName} (${formData.mobileNumber}), ${formData.flat}, ${formData.street}, ${formData.landmark ? formData.landmark + ', ' : ''}${formData.area}, ${formData.city} - ${formData.pincode}`;
         
         const newAddress = { title: formData.label || 'Home', address_line: fullAddressLine };
-        const success = await addAddress(newAddress);
+        const saved = await addAddress(newAddress);
         
-        if (success) {
+        if (saved) {
             setIsModalOpen(false);
+            if (saved.id) {
+                setSelectedAddressId(saved.id);
+            }
+            setShowError(false);
             setFormData({ label: '', recipientName: '', mobileNumber: '', flat: '', street: '', landmark: '', area: '', city: '', pincode: '' });
         }
     };

@@ -7,7 +7,6 @@ const CakeVisualizer = ({ shape, tiers, frostingColor, decorations, message }) =
 
   const renderTier = (tierIndex, width, yPos) => {
     // Generate different SVG paths based on shape
-    const rx = shape === 'Square' ? 5 : shape === 'Heart' ? width / 2 : width / 2;
     const ry = shape === 'Square' ? 5 : shape === 'Heart' ? 30 : 20;
 
     let path = '';

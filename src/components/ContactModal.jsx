@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
  * Real Email Pipeline via Web3Forms (Free, No Backend Required)
@@ -59,6 +59,14 @@ export default function ContactModal() {
         return () => window.removeEventListener('open-contact', handleOpen);
     }, []);
 
+    const handleClose = useCallback(() => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsOpen(false);
+            setIsClosing(false);
+        }, 400);
+    }, []);
+
     // Accessibility Focus constraints + Background Locking
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -80,15 +88,7 @@ export default function ContactModal() {
             document.removeEventListener('keydown', handleKeyDown);
             document.body.style.overflow = '';
         };
-    }, [isOpen, status]);
-
-    const handleClose = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            setIsOpen(false);
-            setIsClosing(false);
-        }, 400);
-    };
+    }, [isOpen, status, handleClose]);
 
     const validate = () => {
         const newErrors = {};

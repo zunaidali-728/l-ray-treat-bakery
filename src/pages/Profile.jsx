@@ -46,11 +46,10 @@ export default function Profile() {
         }
     }, [user, fetchProfile]);
 
-    useEffect(() => {
-        if (profile) {
-            setEditForm({ full_name: profile.full_name || '', contact_number: profile.contact_number || '' });
-        }
-    }, [profile]);
+    const handleOpenEditProfile = () => {
+        setEditForm({ full_name: profile?.full_name || '', contact_number: profile?.contact_number || '' });
+        setIsEditProfileOpen(true);
+    };
 
     if (!user) {
         return (
@@ -129,7 +128,7 @@ export default function Profile() {
                 <div className="bg-[#fff8f5] dark:bg-[#2b221e] rounded-[2rem] p-8 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.02)] border border-[#f0e3dc] dark:border-[#3b322e]">
                     <div className="flex justify-between items-baseline mb-10">
                         <h2 className="font-headline text-4xl text-[#1a0f0a] dark:text-[#ede0d9]">Personal Info</h2>
-                        <button onClick={() => setIsEditProfileOpen(true)} className="font-body text-sm font-semibold text-[#8b6118] border-b border-[#8b6118]/30 pb-0.5 hover:text-[#5f3f04] dark:hover:text-[#f8bc51] transition-colors">Update Records</button>
+                        <button onClick={handleOpenEditProfile} className="font-body text-sm font-semibold text-[#8b6118] border-b border-[#8b6118]/30 pb-0.5 hover:text-[#5f3f04] dark:hover:text-[#f8bc51] transition-colors">Update Records</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-16">
                         <div>
